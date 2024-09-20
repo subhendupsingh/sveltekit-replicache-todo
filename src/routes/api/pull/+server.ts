@@ -1,26 +1,15 @@
 import type { RequestHandler } from './$types';
 import { error, json } from '@sveltejs/kit';
-import { drizzle, type PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import type { Database } from '$lib';
-import postgres from 'postgres';
 import { pull, pullRequest } from '$lib/pull';
-
-
-let db: PostgresJsDatabase<Database> | null;
-
-const getDb = (url: string): PostgresJsDatabase<Database> => {
-    if (!db) {
-        const queryClient = postgres(url);
-        db = drizzle(queryClient);
-    }
-    return db
-}
+import { getDb } from '$lib';
 
 export const POST: RequestHandler = async ({ url, request, platform }) => {
     if(!platform){
         error(500, 'Platform not found');
     }
     
+    console.log("In Pull request endpoint");
+
     const body = await request.json();
     const pullBody = pullRequest.parse(body);
     const searchParams = url.searchParams;
@@ -29,7 +18,7 @@ export const POST: RequestHandler = async ({ url, request, platform }) => {
         error(500, 'Space ID not found');
     }
     
-    const db = getDb(platform.env.SUPABASE_CONNECT_URL);
+    const db = await getDb(platform.env.NEON_URL);
     const response = await pull(db, pullBody, spaceID);
     return json(response);
 };

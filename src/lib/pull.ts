@@ -1,5 +1,4 @@
-import type { Database, Transact } from "$lib";
-import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import type { DB, Transact } from "$lib";
 import { replicacheClient, todos } from "./db/schema";
 import { and, eq, gt } from "drizzle-orm";
 import { getSpaceCurrentVersion } from "./push";
@@ -21,7 +20,7 @@ export type PullResponse = {
   patch: PatchOperation[];
 };
 
-export async function pull(db: PostgresJsDatabase<Database>, pull: PullRequest, spaceID: string): Promise<PullResponse> {
+export async function pull(db: DB, pull: PullRequest, spaceID: string): Promise<PullResponse> {
     console.log(`Processing pull`, JSON.stringify(pull, null, ''));
 
     // 1. Get the last space version that was synced. `requestCookie` here.

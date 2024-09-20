@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import type { Database, Transact } from '$lib';
+import type { DB, Transact } from '$lib';
 import { replicacheClient, replicacheSpace, todos } from './db/schema.js';
 import { eq } from 'drizzle-orm';
 import type { ReplicacheSpace } from './types.js';
@@ -28,7 +27,7 @@ export type Error = 'SpaceNotFound';
 export async function push(
   push: PushRequest, 
   spaceID: string, 
-  db: PostgresJsDatabase<Database>
+  db: DB
 ) {
   console.log('Processing push', JSON.stringify(push, null, ''));
 

@@ -6,7 +6,8 @@ export type Env = {
     SUPABASE_CONNECT_URL: string,
     SUPABASE_ANON_KEY: string,
     REP_LICENSE: string,
-    DEFAULT_USER: string
+    DEFAULT_USER: string,
+    NEON_URL: string
 }
 
 export type ReplicacheClient = InferSelectModel<typeof replicacheClient>;
