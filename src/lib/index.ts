@@ -1,7 +1,7 @@
 import { Replicache } from 'replicache';
 import * as schema from "$lib/db/schema";
 import { mutators, type M } from './mutators';
-import { drizzle, type PostgresJsDatabase, type PostgresJsQueryResultHKT } from 'drizzle-orm/postgres-js';
+import { type PostgresJsDatabase, type PostgresJsQueryResultHKT } from 'drizzle-orm/postgres-js';
 import type { PgTransaction } from 'drizzle-orm/pg-core';
 import type { ExtractTablesWithRelations } from 'drizzle-orm';
 import { customAlphabet } from 'nanoid';

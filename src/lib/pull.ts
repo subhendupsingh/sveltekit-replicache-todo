@@ -23,6 +23,8 @@ export type PullResponse = {
 
 export async function pull(db: PostgresJsDatabase<Database>, pull: PullRequest, spaceID: string): Promise<PullResponse> {
     console.log(`Processing pull`, JSON.stringify(pull, null, ''));
+
+    // 1. Get the last space version that was synced. `requestCookie` here.
     const {cookie: requestCookie, schemaVersion} = pull;
     console.log('spaceID', spaceID);
   
@@ -32,8 +34,14 @@ export async function pull(db: PostgresJsDatabase<Database>, pull: PullRequest, 
     const [entries, lastMutationIDChanges, responseCookie] = await db.transaction(
       async (tx) => {
         return Promise.all([
+          // 2. Get all the records that were changed for the requesting spaceID (user)
+          // since last sync `sinceCookie`
           getChangedEntries(tx, spaceID, sinceCookie),
+          
+          //3. Get the last mutation ids of all the clients in the requesting client group
           getLastMutationIDsSince(tx, pull.clientGroupID, sinceCookie),
+
+          // 4. Get the current version of the space
           getSpaceCurrentVersion(tx, spaceID),
         ]);
       },
@@ -47,6 +55,7 @@ export async function pull(db: PostgresJsDatabase<Database>, pull: PullRequest, 
       throw new Error(`Unknown space ${spaceID}`);
     }
   
+    // 5. Preparing the response
     const resp: PullResponse = {
       lastMutationIDChanges,
       cookie: responseCookie,

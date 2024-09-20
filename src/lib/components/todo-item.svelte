@@ -7,6 +7,10 @@
     export let todo: Partial<Todo>;
     export let replicache: Replicache<M>;
 
+    // Calling the mutation to update the Todo
+    // This same mutation with the args passed here will be replayed on the server
+    // in the push request.
+    // see mutators.ts
     const updateTodo = async () => {
         await replicache.mutate.updateTodo({
             id: todo.id,
@@ -18,7 +22,6 @@
 
 <div class="flex items-center">
     <Checkbox bind:checked={todo.completed} onCheckedChange={() => updateTodo()} />
-    {todo.completed}
     {#if todo.completed}
         <span class="ml-2 line-through">{todo.text}</span>
     {:else}

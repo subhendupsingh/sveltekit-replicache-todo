@@ -19,6 +19,10 @@
     let todoText: string;
     const replicache: Replicache<M> = data.replicache;
 
+    // Calling the mutation to create a new Todo
+    // This same mutation with the args passed here will be replayed on the server
+    // in the push request.
+    // see mutators.ts
     const createTodo = async () => {
         const id = getRandomID();
         await replicache.mutate.createTodo({
@@ -39,6 +43,7 @@
         });
     }
 
+    // Replicache query subscription for real-time updates
     const subscribeTodos = async () => {
         const unsubscribe = replicache?.subscribe(
             async(tx) => {
@@ -55,6 +60,8 @@
         return unsubscribe;
     }
 
+    // Supabase realtime listener to invoke pull when the changes are received
+    // Poke in replicache terminology
     const listenRemoteTodoChanges = async () => {
         const unslisten = supabase
         .channel('schema-db-changes')

@@ -5,7 +5,7 @@
  */
 
 import type { ReadonlyJSONObject, WriteTransaction } from "replicache";
-import type { Todo, TodoInsert } from "./types";
+import type { TodoInsert } from "./types";
 
 export const mutators = {
     createTodo: async (tx: WriteTransaction, args: Omit<TodoInsert, "spaceId"|"version">) => {
