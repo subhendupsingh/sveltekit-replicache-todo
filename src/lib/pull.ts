@@ -61,7 +61,9 @@ export async function pull(db: DB, pull: PullRequest, spaceID: string): Promise<
       patch: [],
     };
   
-    for (const [id, text, deleted, completed] of entries) {
+    for (const [id, text, deleted, completed, createdAt, updatedAt] of entries) {
+      const createdAtMillis = createdAt.getTime();
+      const updatedAtMillis = updatedAt.getTime();
       if (deleted) {
         resp.patch.push({
           op: 'del',
@@ -75,6 +77,8 @@ export async function pull(db: DB, pull: PullRequest, spaceID: string): Promise<
             text,
             completed,
             id,
+            createdAt: createdAtMillis,
+            updatedAt: updatedAtMillis,
           },
         });
       }
@@ -87,7 +91,7 @@ export async function pull(db: DB, pull: PullRequest, spaceID: string): Promise<
   const getChangedEntries = async (tx: Transact, spaceID: string, since: number) => {
       try {
         const result = await tx.select().from(todos).where(and(eq(todos.spaceId, spaceID), gt(todos.version, since)));
-        return result.map((r) => [r.id, r.text, r.deleted, r.completed] as [string, string, boolean, boolean]);
+        return result.map((r) => [r.id, r.text, r.deleted, r.completed, r.createdAt, r.updatedAt] as [string, string, boolean, boolean, Date, Date]);
       } catch (error) {
           console.log("Failed to get changed entries");
           throw error;

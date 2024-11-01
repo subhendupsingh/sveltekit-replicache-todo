@@ -6,6 +6,7 @@
     
     export let todo: Partial<Todo>;
     export let replicache: Replicache<M>;
+    export let index: number;
 
     // Calling the mutation to update the Todo
     // This same mutation with the args passed here will be replayed on the server
@@ -20,11 +21,11 @@
     }
 </script>
 
-<div class="flex items-center">
+<div class="flex items-center my-4">
     <Checkbox bind:checked={todo.completed} onCheckedChange={() => updateTodo()} />
     {#if todo.completed}
-        <span class="ml-2 line-through">{todo.text}</span>
+        <span class="ml-2 line-through">{index+1}. {todo.text}</span>
     {:else}
-        <span class="ml-2">{todo.text}</span>
+        <span class="ml-2">{index+1}. {todo.text}</span>
     {/if}
 </div>

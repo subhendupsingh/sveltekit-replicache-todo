@@ -25,20 +25,39 @@
     // see mutators.ts
     const createTodo = async () => {
         const id = getRandomID();
-        await replicache.mutate.createTodo({
+        
+        const value = {
             id,
             text: todoText,
             completed: false,
             deleted: false,
-        });
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        };
+
+        await replicache.mutate.createTodo(value);
     }
 
     const repliDataToTodo = (data: any[]): Partial<Todo>[] => {
+        // map and sort by updatedAt date filed
+        // data.sort((a, b) => b[1].updatedAt - a[1].updatedAt);
         return data.map((d) => {
             return {
                 id: d[1].id as string,
                 text: d[1].text as string,
                 completed: d[1].completed as boolean,
+                updatedAt: d[1].updatedAt as Date,
+                createdAt: d[1].createdAt as Date
+            }
+            // @ts-ignore
+        }).sort((a, b) => {
+            console.log(typeof a.createdAt, typeof b.createdAt);
+            if(typeof a.createdAt == "object" && typeof b.createdAt == "object") {
+                return b.createdAt.getTime() - a.createdAt.getTime();
+            }else if(typeof a.createdAt == "number" && typeof b.createdAt == "number") {
+                return b.createdAt - a.createdAt;
+            }else{
+                return 0;
             }
         });
     }
@@ -51,8 +70,9 @@
             },
             {
                 onData(result) {
-                    console.log(repliDataToTodo(result));
+                    console.log("Subscribe called!")
                     todos = repliDataToTodo(result);
+                    console.log(todos);
                 },
             }
         )
@@ -79,13 +99,13 @@
 
     onMount(async () => {
         const unsubscribe = await subscribeTodos();
-        const unslisten = await listenRemoteTodoChanges();
+        //const unslisten = await listenRemoteTodoChanges();
 
         return {
             destroy() {
                 console.log('unsubscribing from replicache');
                 unsubscribe();
-                unslisten?.unsubscribe();
+                //unslisten?.unsubscribe();
             }
         }
     });
@@ -93,17 +113,23 @@
 
 <div class="min-h-screen flex flex-col gap-4 max-w-screen-sm lg:max-w-screen-md mx-auto my-16">
     <h1 class="text-3xl font-bold">Todos with replicache</h1>
+    <p class="text-gray-600 text-sm">
+        Open a new browser tab or incognito window. Add a todo here and watch it reflect automatically in the other tab/browser.
+
+    </p>
     
     <div class="flex gap-4 mt-6">
-        <Input bind:value={todoText} placeholder="Add a todo" class="w-3/4" />
+        <Input bind:value={todoText} placeholder="Write something interesting..." class="w-3/4" />
         <Button variant="default" class="w-1/4" on:click={() => createTodo()}>Add</Button>
     </div>
 
     <Separator class="my-6" />
 
-    {#each todos as todo}
-        <TodoItem {replicache} {todo} />
-    {/each}
+    <div class="max-h-dvh overflow-y-auto">
+        {#each todos as todo, index}
+            <TodoItem {replicache} {todo} {index} />
+        {/each}
+    </div>
 
     <div class="sticky bottom-0 flex w-full mt-auto justify-center text-sm text-gray-500 pb-4">
         Tutorial by <a class="underline ml-1 text-orange-500" href="https://shootmail.app">Shootmail</a>
